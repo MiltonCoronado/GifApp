@@ -1,28 +1,31 @@
+import { useState } from 'react';
 import { CustomHeader } from './shared/components/CustomHeader';
 import { SearchBar } from './shared/components/SearchBar';
 import { PreviousSearches } from './gifs/components/PreviousSearches';
 import { GifList } from './gifs/components/GifList';
-import { mockGifs } from './mock-data/gifs.mock';
-import { useState } from 'react';
+import type { Gif } from '../src/gifs/interfaces/gif.interface';
+
+import { getGifsByQuery } from './gifs/actions/get-gif-by-query.action';
 
 const GifApp = () => {
-  const [previousTerms, setPreviousTerms] = useState(['asuka', 'misato']);
+  const [previousTerms, setPreviousTerms] = useState<string[]>([]); //useState() si acepta genericos!!!
+  const [gifslList, setGifsList] = useState<Gif[]>([]);
 
   const handleTermClicked = (term: string) => {
     console.log({ term });
   };
 
-  const handleSearch = (query: string) => {
+  const handleSearch = async (query: string = '') => {
     console.log({ query });
     const newQuery = query.toLowerCase().trim();
     if (newQuery.length === 0) return;
     if (previousTerms.includes(newQuery)) return;
-    const newTerms = [
-      newQuery,
-      ...previousTerms.filter((term) => term !== newQuery),
-    ].slice(0, 8);
 
-    setPreviousTerms(newTerms);
+    setPreviousTerms([newQuery, ...previousTerms].slice(0, 8)); //(spread operator): crea una nueva copia del array para que React detecte el cambio de referencia y actualice la interfaz.
+
+    const gifs = await getGifsByQuery(query);
+    console.log({ gifs });
+    setGifsList(gifs);
   };
 
   return (
@@ -36,7 +39,7 @@ const GifApp = () => {
         searches={previousTerms}
         onLabelClicked={handleTermClicked} //comunicacion entre componentes hijo padre/padre hijo.
       />
-      <GifList gifs={mockGifs} />
+      <GifList gifs={gifslList} />
     </>
   );
 };
