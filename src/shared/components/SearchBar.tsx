@@ -16,6 +16,7 @@ const SearchBar = ({ placeholder = 'Buscar', onQuery }: Props) => {
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       onQuery(query);
+      setQuery('');
     }, 2000); //debounce ó debouncer
 
     // return(Cleanup function): Cancela procesos (timers/suscripciones/peticiones https//:...etc) antes de cada nuevo render o al desmontar el componente.
